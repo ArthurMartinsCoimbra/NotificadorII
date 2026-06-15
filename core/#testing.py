@@ -1,13 +1,13 @@
-import requests, phpserialize
+import requests, phpserialize, json, re
 
 cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781471151$o4$g0$t1781471151$j60$l0$h0',
-    'token_name': '3550e8620e0a85bb227c56ad664a9bb632842b4bdc1d324812075ec7c8382507db888cec3550e8620e0a85bb227c56ad664a9bb632842b4bdc1d324812075ec7c8382507db888cec',
-    'token_value': '9e090abc24f529b58fc2d6796f16fdb7f3df49f2438b8f83bdeeda85e580378d28227f709e090abc24f529b58fc2d6796f16fdb7f3df49f2438b8f83bdeeda85e580378d28227f70',
-    '1989d206329b0bd437e1a7531': '3254884a0a1ea2ee91a8a1dc5c0fe10ac3148e207c937443956b4fffa2acb89278ecfac2ecf8884a0a1ea2ee91a8a1dc5c0fe10ac3148e207c937443956b4fffa2acb89278ecfac2ecf8',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781475356$o5$g0$t1781475356$j60$l0$h0',
+    'token_name': 'fb0113d90b612d7a320c5b324d2b6c948939f5502902eca2058fe58bbf2dc3a3c7b15bf0fb0113d90b612d7a320c5b324d2b6c948939f5502902eca2058fe58bbf2dc3a3c7b15bf0',
+    'token_value': 'e030d8aa2d7f2620050be42445c50d6622ee41bc0cc62815b1d11160aecfb4a0496025fce030d8aa2d7f2620050be42445c50d6622ee41bc0cc62815b1d11160aecfb4a0496025fc',
+    '1989d206329b0bd437e1a7531': '3254d8ea923a316ffd5e253ed2916d930600b9d968d3d7be116c0f2b425a2e805ab1bf960a5ad8ea923a316ffd5e253ed2916d930600b9d968d3d7be116c0f2b425a2e805ab1bf960a5a',
 }
 
 headers = {
@@ -45,14 +45,57 @@ data['DT_POST']=data['DT_POST'].replace('"STATUSV"', f'"{statusn}"')
 
 response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=data)
 
-
 dados = phpserialize.loads(
     data['DT_POST'].encode(),
     decode_strings=True
 )
 
-print(response.text)
+resposta = response.json()
 
 
+
+lista_agendas = []
+
+for agenda in resposta["data"]:
+
+    # Dia da semana
+    dia_semana = re.search(
+        r'<span class="size10">(.*?)</span>',
+        agenda["0"]["show"]
+    ).group(1)
+
+    # Data
+    data = re.search(
+        r'id="data_\d+">(.*?)</span>',
+        agenda["0"]["show"]
+    ).group(1)
+
+    # Cliente + tipo
+    cliente_info = re.search(
+        r'badge badge-light">(.*?)</span>',
+        agenda["1"]["show"]
+    ).group(1)
+
+    # Nome da pesquisa
+    pesquisa = agenda["1"]["sort"]
+
+    # Status
+    status = re.search(
+        r'btn btn-success btn-sm size12">(.*?)</button>',
+        agenda["6"]["show"]
+    ).group(1)
+
+    pesquisa = {
+        "dia_semana": dia_semana,
+        "data": data,
+        "cliente_info": cliente_info,
+        "pesquisa": pesquisa,
+        "status": status
+    }
+    lista_agendas.append(pesquisa)
+
+print(json.dumps(lista_agendas, indent=4, ensure_ascii=False))
 
 #print(response.text)
+
+
