@@ -4,10 +4,10 @@ cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781475356$o5$g0$t1781475356$j60$l0$h0',
-    'token_name': 'fb0113d90b612d7a320c5b324d2b6c948939f5502902eca2058fe58bbf2dc3a3c7b15bf0fb0113d90b612d7a320c5b324d2b6c948939f5502902eca2058fe58bbf2dc3a3c7b15bf0',
-    'token_value': 'e030d8aa2d7f2620050be42445c50d6622ee41bc0cc62815b1d11160aecfb4a0496025fce030d8aa2d7f2620050be42445c50d6622ee41bc0cc62815b1d11160aecfb4a0496025fc',
-    '1989d206329b0bd437e1a7531': '3254d8ea923a316ffd5e253ed2916d930600b9d968d3d7be116c0f2b425a2e805ab1bf960a5ad8ea923a316ffd5e253ed2916d930600b9d968d3d7be116c0f2b425a2e805ab1bf960a5a',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781620699$o7$g1$t1781627461$j30$l0$h0',
+    'token_name': '21ba8c452eb8ff95cfe2970f7f8250407ed32e88dd5920a5e54669c742c8f4378009fac421ba8c452eb8ff95cfe2970f7f8250407ed32e88dd5920a5e54669c742c8f4378009fac4',
+    'token_value': '6b682b4f6f14948c60f5b2dd4f9f6ef07e46f1c1ba3c83cf1318dda45c71f27d3a0243746b682b4f6f14948c60f5b2dd4f9f6ef07e46f1c1ba3c83cf1318dda45c71f27d3a024374',
+    '1989d206329b0bd437e1a7531': '3254bc59d58a743ffa470839ff792dccfab29b17110dda09c0c91ed7573a0b0759b4140e383dbc59d58a743ffa470839ff792dccfab29b17110dda09c0c91ed7573a0b0759b4140e383d',
 }
 
 headers = {
@@ -55,9 +55,11 @@ resposta = response.json()
 
 
 lista_agendas = []
+agendas = {}
 
 for agenda in resposta["data"]:
 
+    agenda_id = agenda["DT_RowId"].replace("row_", "")
     # Dia da semana
     dia_semana = re.search(
         r'<span class="size10">(.*?)</span>',
@@ -77,7 +79,7 @@ for agenda in resposta["data"]:
     ).group(1)
 
     # Nome da pesquisa
-    pesquisa = agenda["1"]["sort"]
+    pesquisanome = agenda["1"]["sort"]
 
     # Status
     status = re.search(
@@ -89,12 +91,33 @@ for agenda in resposta["data"]:
         "dia_semana": dia_semana,
         "data": data,
         "cliente_info": cliente_info,
-        "pesquisa": pesquisa,
+        "pesquisa": pesquisanome,
         "status": status
     }
-    lista_agendas.append(pesquisa)
+    
+    agendas[agenda_id] = {
+        "data": data,
+        "dia_semana": dia_semana,
+        "pesquisanome" : pesquisanome,
+        "nome_pesquisa" : cliente_info,
+        "status": status
+    }
 
-print(json.dumps(lista_agendas, indent=4, ensure_ascii=False))
+
+    lista_agendas.append(pesquisa)  
+    
+
+
+print(json.dumps(agendas, indent=4, ensure_ascii=False))
+    #lista_agendas.append(pesquisa)
+
+
+
+
+
+
+
+#print(json.dumps(lista_agendas, indent=4, ensure_ascii=False))
 
 #print(response.text)
 
