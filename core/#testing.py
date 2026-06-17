@@ -6,11 +6,9 @@ cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    '9489d206329ssdb0bd437e1a7541': '530810e4dd625a2a7b6c384c82b26318eb453ce2121ff70a9d12922f9a7259af8b083ea3bd5276e4dd625a2a7b6c384c82b26318eb453ce2121ff70a9d12922f9a7259af8b083ea3bd5276',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781708487$o11$g1$t1781708576$j37$l0$h0',
-    'token_name': 'e663e2d33b3e468798c03466b9143a86e5d71b6f7941ea14b949c93f5bc7102cfe9c7d82e663e2d33b3e468798c03466b9143a86e5d71b6f7941ea14b949c93f5bc7102cfe9c7d82',
-    'token_value': 'ce2b2801a338896068546691345b12d87e5cfdecccae5912dfa6e76695b135e9ae2a38e3ce2b2801a338896068546691345b12d87e5cfdecccae5912dfa6e76695b135e9ae2a38e3',
-    '1989d206329b0bd437e1a7531': '3254238624b432ae3c49caae359c5f78cf72a955fc2a5af1d2f9ccdddebe0a31c997921ddae5238624b432ae3c49caae359c5f78cf72a955fc2a5af1d2f9ccdddebe0a31c997921ddae5',
+    '9489d206329ssdb0bd437e1a7541': '5308103b1733c94d9b0edf715393f4f6ed86aefb9713eff9f9fd127c7e49def21bc437f2c08e2d3b1733c94d9b0edf715393f4f6ed86aefb9713eff9f9fd127c7e49def21bc437f2c08e2d',
+    '1989d206329b0bd437e1a7531': '325475aa915eed3c36badde6b290b6188a2f4a73cc7e51092caa4470f638c4eeb461f542409575aa915eed3c36badde6b290b6188a2f4a73cc7e51092caa4470f638c4eeb461f5424095',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781723876$o12$g1$t1781724305$j60$l0$h0',
 }
 
 headers = {
@@ -46,13 +44,16 @@ def serializar_lista_php(lista):
 
     return f'a:{len(lista)}:{{' + ''.join(itens) + '}'
 
-lista_de_status = [4]
+lista_de_status = [10]
+lista_de_clientes = [83, 268, 328]
+lista_de_listas = [2,7]
+lista_de_agenda_tipo = [1]
 data_ini = "15/06/2026"
 data_fim = "19/06/2026"
-clientes_php = serializar_lista_php([268])
+clientes_php = serializar_lista_php(lista_de_clientes)
 status_php = serializar_lista_php(lista_de_status)
-listas_php = serializar_lista_php([7])
-agenda_tipo_php = serializar_lista_php([1])
+listas_php = serializar_lista_php(lista_de_listas)
+agenda_tipo_php = serializar_lista_php(lista_de_agenda_tipo)
 
 
 
@@ -113,24 +114,24 @@ def obter_agendas():
             # Status
             
             status = re.search(
-                r'btn btn-success btn-sm size12">(.*?)</button>',
-                agenda["6"]["show"]
+            r'<button[^>]*>(.*?)</button>',
+            agenda["6"]["show"]
             ).group(1)
-            print(status)
 
-            pesquisa = {
+
+            '''pesquisa = {
                 "dia_semana": dia_semana,
                 "data": data_agenda,
                 "cliente_info": cliente_info,
                 "pesquisa": pesquisanome,
                 "status": status
-            }  
+            } ''' 
 
             agendas[agenda_id] = {
             "data": data_agenda,
             "dia_semana": dia_semana,
-            "pesquisanome" : pesquisanome,
-            "nome_pesquisa" : cliente_info,
+            "concorrente" : pesquisanome,
+            "cliente(lista)" : cliente_info,
             "status": status
         }
         return agendas
@@ -149,10 +150,14 @@ while True:
     agendas_atuais = obter_agendas()
 
     novas = agendas_atuais.keys() - agendas_anteriores.keys()
-
+    i = 1
     for agenda_id in novas:
         print("Nova agenda:")
         print(agendas_atuais[agenda_id])
+        if len(novas) == i:
+            print("__________________________________")
+        else:
+            i += 1
 
     agendas_anteriores = agendas_atuais.copy()
 
