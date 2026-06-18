@@ -1,14 +1,16 @@
 from time import sleep
-
+from bs4 import BeautifulSoup
 import requests, phpserialize, json, re
 
 cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    '9489d206329ssdb0bd437e1a7541': '5308103b1733c94d9b0edf715393f4f6ed86aefb9713eff9f9fd127c7e49def21bc437f2c08e2d3b1733c94d9b0edf715393f4f6ed86aefb9713eff9f9fd127c7e49def21bc437f2c08e2d',
-    '1989d206329b0bd437e1a7531': '325475aa915eed3c36badde6b290b6188a2f4a73cc7e51092caa4470f638c4eeb461f542409575aa915eed3c36badde6b290b6188a2f4a73cc7e51092caa4470f638c4eeb461f5424095',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781723876$o12$g1$t1781724305$j60$l0$h0',
+    '9489d206329ssdb0bd437e1a7541': '530809dfbc11c15eb820b6949fbfc2375049e03c16002ad70ff76f5649029726d2ddb4f1d31607dfbc11c15eb820b6949fbfc2375049e03c16002ad70ff76f5649029726d2ddb4f1d31607',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781806543$o17$g1$t1781807906$j60$l0$h0',
+    'token_name': '73f68ff58c91ac9d13f97c212ab74dd38c0d848c241a3163de0bdc6d0292f5bf228aeda973f68ff58c91ac9d13f97c212ab74dd38c0d848c241a3163de0bdc6d0292f5bf228aeda9',
+    'token_value': '6eb04967b8dae3851f97f2776aeb1e4e6fc4cc9e217c5827eb49ee30f2fd782961cbfb306eb04967b8dae3851f97f2776aeb1e4e6fc4cc9e217c5827eb49ee30f2fd782961cbfb30',
+    '1989d206329b0bd437e1a7531': '3254c45685895ae8f43877a82297c5a81d81619e827624f6cdaf7a3af3ebd2a41d157ad5f011c45685895ae8f43877a82297c5a81d81619e827624f6cdaf7a3af3ebd2a41d157ad5f011',
 }
 
 headers = {
@@ -31,8 +33,99 @@ headers = {
 
 
 payload = {
-    'DT_POST': 'a:7:{s:7:"periodo";a:5:{s:8:"criterio";s:1:"1";s:6:"exibir";s:1:"2";s:7:"ultimos";s:1:"7";s:3:"ini";s:10:"DATA_INI";s:3:"fim";s:10:"DATA_FIM";}s:8:"clientes";a:2:{s:4:"view";CLIENTESs:3:"sql";CLIENTES}s:12:"responsaveis";a:2:{s:3:"sql";a:94:{i:0;i:309;i:1;i:467;i:2;i:229;i:3;i:405;i:4;i:406;i:5;i:443;i:6;i:448;i:7;i:247;i:8;i:246;i:9;i:435;i:10;i:254;i:11;i:455;i:12;i:194;i:13;i:190;i:14;i:113;i:15;i:221;i:16;i:1;i:17;i:456;i:18;i:446;i:19;i:205;i:20;i:163;i:21;i:480;i:22;i:440;i:23;i:232;i:24;i:322;i:25;i:326;i:26;i:331;i:27;i:428;i:28;i:429;i:29;i:430;i:30;i:432;i:31;i:470;i:32;i:463;i:33;i:415;i:34;i:449;i:35;i:255;i:36;i:311;i:37;i:419;i:38;i:383;i:39;i:394;i:40;i:250;i:41;i:469;i:42;i:438;i:43;i:475;i:44;i:423;i:45;i:45;i:46;i:398;i:47;i:459;i:48;i:358;i:49;i:408;i:50;i:395;i:51;i:417;i:52;i:452;i:53;i:471;i:54;i:206;i:55;i:10;i:56;i:317;i:57;i:379;i:58;i:96;i:59;i:447;i:60;i:388;i:61;i:241;i:62;i:304;i:63;i:233;i:64;i:476;i:65;i:462;i:66;i:479;i:67;i:439;i:68;i:478;i:69;i:412;i:70;i:481;i:71;i:451;i:72;i:425;i:73;i:473;i:74;i:272;i:75;i:464;i:76;i:99;i:77;i:460;i:78;i:67;i:79;i:314;i:80;i:421;i:81;i:2;i:82;i:343;i:83;i:416;i:84;i:387;i:85;i:82;i:86;i:461;i:87;i:413;i:88;i:468;i:89;i:445;i:90;i:420;i:91;i:346;i:92;i:454;i:93;i:466;}s:4:"view";a:0:{}}s:9:"auditores";a:2:{s:3:"sql";a:94:{i:0;i:309;i:1;i:467;i:2;i:229;i:3;i:405;i:4;i:406;i:5;i:443;i:6;i:448;i:7;i:247;i:8;i:246;i:9;i:435;i:10;i:254;i:11;i:455;i:12;i:194;i:13;i:190;i:14;i:113;i:15;i:221;i:16;i:1;i:17;i:456;i:18;i:446;i:19;i:205;i:20;i:163;i:21;i:480;i:22;i:440;i:23;i:232;i:24;i:322;i:25;i:326;i:26;i:331;i:27;i:428;i:28;i:429;i:29;i:430;i:30;i:432;i:31;i:470;i:32;i:463;i:33;i:415;i:34;i:449;i:35;i:255;i:36;i:311;i:37;i:419;i:38;i:383;i:39;i:394;i:40;i:250;i:41;i:469;i:42;i:438;i:43;i:475;i:44;i:423;i:45;i:45;i:46;i:398;i:47;i:459;i:48;i:358;i:49;i:408;i:50;i:395;i:51;i:417;i:52;i:452;i:53;i:471;i:54;i:206;i:55;i:10;i:56;i:317;i:57;i:379;i:58;i:96;i:59;i:447;i:60;i:388;i:61;i:241;i:62;i:304;i:63;i:233;i:64;i:476;i:65;i:462;i:66;i:479;i:67;i:439;i:68;i:478;i:69;i:412;i:70;i:481;i:71;i:451;i:72;i:425;i:73;i:473;i:74;i:272;i:75;i:464;i:76;i:99;i:77;i:460;i:78;i:67;i:79;i:314;i:80;i:421;i:81;i:2;i:82;i:343;i:83;i:416;i:84;i:387;i:85;i:82;i:86;i:461;i:87;i:413;i:88;i:468;i:89;i:445;i:90;i:420;i:91;i:346;i:92;i:454;i:93;i:466;}s:4:"view";a:0:{}}s:12:"listas_tipos";a:2:{s:4:"view";LISTAs:3:"sql";LISTA}s:11:"agenda_tipo";AGENDA_TIPOs:6:"status";STATUS}',
+    'DT_POST': 'a:7:{s:7:"periodo";a:5:{s:8:"criterio";s:1:"1";s:6:"exibir";s:1:"2";s:7:"ultimos";s:1:"7";s:3:"ini";s:10:"DATA_INI";s:3:"fim";s:10:"DATA_FIM";}s:8:"clientes";a:2:{s:4:"view";CLIENTESs:3:"sql";CLIENTES}s:12:"responsaveis";a:2:{s:3:"sql";RESPONSAVEIS_PHPs:4:"view";a:0:{}}s:9:"auditores";a:2:{s:3:"sql";AUDITORES_PHPs:4:"view";a:0:{}}s:12:"listas_tipos";a:2:{s:4:"view";LISTAs:3:"sql";LISTA}s:11:"agenda_tipo";AGENDA_TIPOs:6:"status";STATUS}',
 }
+
+def serializar_php_inteiros(ids):
+
+    itens = []
+
+    for indice, valor in enumerate(ids):
+
+        itens.append(
+            f"i:{indice};i:{valor};"
+        )
+
+    return f'a:{len(ids)}:{{' + ''.join(itens) + '}'
+
+def serializar_php_strings(ids):
+    partes = []
+
+    for i, valor in enumerate(ids):
+        valor = str(valor)
+
+        partes.append(
+            f'i:{i};s:{len(valor)}:"{valor}";'
+        )
+
+    return f'a:{len(ids)}:{{' + ''.join(partes) + '}'
+
+
+
+
+html = requests.get(
+    "https://adm.zukk.in/agenda-zgo",
+    headers=headers,
+    cookies=cookies
+).text
+
+soup = BeautifulSoup(html, "html.parser")
+
+
+responsaveis_lista = []
+
+for inp in soup.select('input[id^="responsavel-"]'):
+    responsaveis_lista.append(inp["value"])
+
+#print(responsaveis_lista)
+
+
+
+responsaveis_dict = {}
+
+for inp in soup.select('input[id^="responsavel-"]'):
+
+    id_resp = inp["value"]
+
+    label = soup.find("label", {"for": inp["id"]})
+
+    if label:
+        responsaveis_dict[label.text.strip()] = id_resp
+
+#print(responsaveis_dict)
+
+
+ids_responsaveis = list(responsaveis_dict.values())
+
+responsaveis_php = serializar_php_inteiros(ids_responsaveis)
+
+#relacao id - clientes
+'''
+r = requests.get(
+    "https://adm.zukk.in/get-clientes",
+    headers=headers,
+    cookies=cookies
+)
+
+clientes_json = r.json()
+
+#relacao cliente - id
+
+clientes_dict = {
+    item["text"]: int(item["id"])
+    for item in clientes_json["results"]
+}
+
+print(clientes_dict)'''
+
+
+'''clientes_ids = [
+    cliente["id"]
+    for cliente in clientes_json["results"]
+]'''
+
+#ids de clientes serializados
+#print(serializar_php_strings(clientes_ids))
 
 
 def serializar_lista_php(lista):
@@ -44,9 +137,14 @@ def serializar_lista_php(lista):
 
     return f'a:{len(lista)}:{{' + ''.join(itens) + '}'
 
-lista_de_status = [10]
-lista_de_clientes = [83, 268, 328]
-lista_de_listas = [2,7]
+
+
+
+dic_agenda_tipo = {"ZGO":1, "ZRobot":2}
+
+lista_de_status = [5]
+lista_de_clientes = [268]
+lista_de_listas = [7]
 lista_de_agenda_tipo = [1]
 data_ini = "15/06/2026"
 data_fim = "19/06/2026"
@@ -63,6 +161,9 @@ payload['DT_POST']=payload['DT_POST'].replace("CLIENTES", clientes_php)
 payload['DT_POST']=payload['DT_POST'].replace("AGENDA_TIPO", agenda_tipo_php)
 payload['DT_POST']=payload['DT_POST'].replace("STATUS", status_php)
 payload['DT_POST']=payload['DT_POST'].replace("LISTA", listas_php)
+payload['DT_POST']=payload['DT_POST'].replace("RESPONSAVEIS_PHP", responsaveis_php)
+payload['DT_POST']=payload['DT_POST'].replace("AUDITORES_PHP", responsaveis_php)
+
 #response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
 #resposta = response.json()
 
