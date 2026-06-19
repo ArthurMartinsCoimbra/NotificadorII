@@ -6,11 +6,11 @@ cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    '9489d206329ssdb0bd437e1a7541': '530809dfbc11c15eb820b6949fbfc2375049e03c16002ad70ff76f5649029726d2ddb4f1d31607dfbc11c15eb820b6949fbfc2375049e03c16002ad70ff76f5649029726d2ddb4f1d31607',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781806543$o17$g1$t1781807906$j60$l0$h0',
-    'token_name': '73f68ff58c91ac9d13f97c212ab74dd38c0d848c241a3163de0bdc6d0292f5bf228aeda973f68ff58c91ac9d13f97c212ab74dd38c0d848c241a3163de0bdc6d0292f5bf228aeda9',
-    'token_value': '6eb04967b8dae3851f97f2776aeb1e4e6fc4cc9e217c5827eb49ee30f2fd782961cbfb306eb04967b8dae3851f97f2776aeb1e4e6fc4cc9e217c5827eb49ee30f2fd782961cbfb30',
-    '1989d206329b0bd437e1a7531': '3254c45685895ae8f43877a82297c5a81d81619e827624f6cdaf7a3af3ebd2a41d157ad5f011c45685895ae8f43877a82297c5a81d81619e827624f6cdaf7a3af3ebd2a41d157ad5f011',
+    'token_name': '8a89f7eba55efb4ba42f1559d946425583c81633ace5c4ab2bd9d34a8168ac87eef750ad8a89f7eba55efb4ba42f1559d946425583c81633ace5c4ab2bd9d34a8168ac87eef750ad',
+    'token_value': '5a4ff3de94e81143a1a939dfcd04a19135529072fee66fbb88ab0b10c3ae69a8ec1989dc5a4ff3de94e81143a1a939dfcd04a19135529072fee66fbb88ab0b10c3ae69a8ec1989dc',
+    '1989d206329b0bd437e1a7531': '325461aaf1ca4d1c027ad5603d905a7970f0b7b0a41406717767865d7f3b72aa6d44bd66a0e761aaf1ca4d1c027ad5603d905a7970f0b7b0a41406717767865d7f3b72aa6d44bd66a0e7',
+    '9489d206329ssdb0bd437e1a7541': '5308100db0a826c67fe3b56bdd921f15f58c3a5df0e37a089de5731b2004709dcbfb5d6dcb176a0db0a826c67fe3b56bdd921f15f58c3a5df0e37a089de5731b2004709dcbfb5d6dcb176a',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781874478$o21$g1$t1781875137$j29$l0$h0',
 }
 
 headers = {
@@ -100,7 +100,7 @@ ids_responsaveis = list(responsaveis_dict.values())
 responsaveis_php = serializar_php_inteiros(ids_responsaveis)
 
 #relacao id - clientes
-'''
+
 r = requests.get(
     "https://adm.zukk.in/get-clientes",
     headers=headers,
@@ -111,12 +111,9 @@ clientes_json = r.json()
 
 #relacao cliente - id
 
-clientes_dict = {
-    item["text"]: int(item["id"])
-    for item in clientes_json["results"]
-}
 
-print(clientes_dict)'''
+
+
 
 
 '''clientes_ids = [
@@ -139,15 +136,22 @@ def serializar_lista_php(lista):
 
 
 
-
+dic_clientes = {
+    item["text"]: int(item["id"])
+    for item in clientes_json["results"]
+}
 dic_agenda_tipo = {"ZGO":1, "ZRobot":2}
 
-lista_de_status = [5]
-lista_de_clientes = [268]
-lista_de_listas = [7]
-lista_de_agenda_tipo = [1]
+dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
+
+
+lista_de_status = [4]
+lista_de_clientes = [268, 145]
+lista_de_listas = [2,7]
+lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
+lista_oculto = [dic_oculto["Não mostrar ocultos"]]
 data_ini = "15/06/2026"
-data_fim = "19/06/2026"
+data_fim = "23/06/2026"
 clientes_php = serializar_lista_php(lista_de_clientes)
 status_php = serializar_lista_php(lista_de_status)
 listas_php = serializar_lista_php(lista_de_listas)
@@ -178,6 +182,21 @@ dados = phpserialize.loads(
 
 
 lista_agendas = []
+
+
+'''def veonegocioai():
+    response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
+    resposta = response.json()
+
+    for agenda in resposta["data"]:
+        print(json.dumps(agenda, indent=2, ensure_ascii=False))
+
+
+veonegocioai()'''
+
+
+
+
 
 
 def obter_agendas():
@@ -219,22 +238,21 @@ def obter_agendas():
             agenda["6"]["show"]
             ).group(1)
 
+            oculto = "Oculto para o Cliente" in agenda["6"]["show"]
 
-            '''pesquisa = {
-                "dia_semana": dia_semana,
+            if oculto in lista_oculto:
+
+                agendas[agenda_id] = {
                 "data": data_agenda,
-                "cliente_info": cliente_info,
-                "pesquisa": pesquisanome,
-                "status": status
-            } ''' 
-
-            agendas[agenda_id] = {
-            "data": data_agenda,
-            "dia_semana": dia_semana,
-            "concorrente" : pesquisanome,
-            "cliente(lista)" : cliente_info,
-            "status": status
-        }
+                "dia_semana": dia_semana,
+                "concorrente" : pesquisanome,
+                "cliente(lista)" : cliente_info,
+                "status": status,
+                "oculto": oculto
+            }
+            else:
+                pass
+                    
         return agendas
     except Exception as e:
         print("Erro ao obter agendas. Renove os cookies e tente novamente.")
@@ -242,7 +260,7 @@ def obter_agendas():
         return {}
 
 
-    
+
 
 agendas_anteriores = {}
 
@@ -262,7 +280,7 @@ while True:
 
     agendas_anteriores = agendas_atuais.copy()
 
-    sleep(60)
+    sleep(30)
 
 
 
