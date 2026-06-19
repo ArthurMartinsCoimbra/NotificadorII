@@ -5,13 +5,14 @@ import requests, phpserialize, json, re
 cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
-    '_ga_KQTSMYDQKY': 'GS2.1.s1781466345$o1$g0$t1781466345$j60$l0$h0',
-    'token_name': '8a89f7eba55efb4ba42f1559d946425583c81633ace5c4ab2bd9d34a8168ac87eef750ad8a89f7eba55efb4ba42f1559d946425583c81633ace5c4ab2bd9d34a8168ac87eef750ad',
-    'token_value': '5a4ff3de94e81143a1a939dfcd04a19135529072fee66fbb88ab0b10c3ae69a8ec1989dc5a4ff3de94e81143a1a939dfcd04a19135529072fee66fbb88ab0b10c3ae69a8ec1989dc',
-    '1989d206329b0bd437e1a7531': '325461aaf1ca4d1c027ad5603d905a7970f0b7b0a41406717767865d7f3b72aa6d44bd66a0e761aaf1ca4d1c027ad5603d905a7970f0b7b0a41406717767865d7f3b72aa6d44bd66a0e7',
-    '9489d206329ssdb0bd437e1a7541': '5308100db0a826c67fe3b56bdd921f15f58c3a5df0e37a089de5731b2004709dcbfb5d6dcb176a0db0a826c67fe3b56bdd921f15f58c3a5df0e37a089de5731b2004709dcbfb5d6dcb176a',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781874478$o21$g1$t1781875137$j29$l0$h0',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1781892173$o24$g1$t1781892310$j53$l0$h0',
+    '9489d206329ssdb0bd437e1a7541': '5535741aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c6211aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c621',
+    '_ga_KQTSMYDQKY': 'GS2.1.s1781894879$o4$g1$t1781895709$j60$l0$h0',
+    'token_name': 'babc327720a17e2d3a1486ee972347909b71f3f34d5775419796577e8e302211cc8ca318babc327720a17e2d3a1486ee972347909b71f3f34d5775419796577e8e302211cc8ca318',
+    'token_value': '06f48d48b7f8fa956bf7756bb94c2be38749f254fd4cb235f4b2d71f71e2a25785eb46c206f48d48b7f8fa956bf7756bb94c2be38749f254fd4cb235f4b2d71f71e2a25785eb46c2',
+    '1989d206329b0bd437e1a7531': '32547671aff09413e5ba31fe514c594d56e4e05c6bcceef47ee5d42a87303dca38cc6776f4197671aff09413e5ba31fe514c594d56e4e05c6bcceef47ee5d42a87303dca38cc6776f419',
 }
+
 
 headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -145,18 +146,21 @@ dic_agenda_tipo = {"ZGO":1, "ZRobot":2}
 dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
 
 
-lista_de_status = [4]
-lista_de_clientes = [268, 145]
-lista_de_listas = [2,7]
+#filtros
+lista_de_status = [8]
+lista_de_clientes = [dic_clientes["Atakarejo"]]
+lista_de_listas = [7]
 lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
-lista_oculto = [dic_oculto["Não mostrar ocultos"]]
+lista_oculto = [dic_oculto["Mostrar ocultos"],dic_oculto["Não mostrar ocultos"]]
 data_ini = "15/06/2026"
 data_fim = "23/06/2026"
+
+
+
 clientes_php = serializar_lista_php(lista_de_clientes)
 status_php = serializar_lista_php(lista_de_status)
 listas_php = serializar_lista_php(lista_de_listas)
 agenda_tipo_php = serializar_lista_php(lista_de_agenda_tipo)
-
 
 
 payload['DT_POST']=payload['DT_POST'].replace("DATA_INI", data_ini)
@@ -201,65 +205,61 @@ veonegocioai()'''
 
 def obter_agendas():
     
-    try:
-        response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
-        resposta = response.json()
+    response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
+    resposta = response.json()
 
-    
-        agendas = {}
-        for agenda in resposta["data"]:
+    agendas = {}
+    for agenda in resposta["data"]:
 
-            agenda_id = agenda["DT_RowId"].replace("row_", "")
-            # Dia da semana
-            dia_semana = re.search(
-                r'<span class="size10">(.*?)</span>',
-                agenda["0"]["show"]
-            ).group(1)
+        agenda_id = agenda["DT_RowId"].replace("row_", "")
+        # Dia da semana
+        dia_semana = re.search(
+            r'<span class="size10">(.*?)</span>',
+            agenda["0"]["show"]
+        ).group(1)
 
-            # Data
-            data_agenda = re.search(
-                r'id="data_\d+">(.*?)</span>',
-                agenda["0"]["show"]
-            ).group(1)
+        # Data
+        data_agenda = re.search(
+            r'id="data_\d+">(.*?)</span>',
+            agenda["0"]["show"]
+        ).group(1)
 
-            # Cliente + tipo
+        
+        # Cliente + tipo
+        try:
             cliente_info = re.search(
                 r'badge badge-light">(.*?)</span>',
                 agenda["1"]["show"]
             ).group(1)
+        except Exception:
+            cliente_info = "Fora do Cluster ou então um erro esquisito"
 
-            # Nome da pesquisa
-            pesquisanome = agenda["1"]["sort"]
+        # Nome da pesquisa
+        pesquisanome = agenda["1"]["sort"]
 
-            # Status
-            
-            status = re.search(
-            r'<button[^>]*>(.*?)</button>',
-            agenda["6"]["show"]
-            ).group(1)
+        # Status
+        
+        status = re.search(
+        r'<button[^>]*>(.*?)</button>',
+        agenda["6"]["show"]
+        ).group(1)
 
-            oculto = "Oculto para o Cliente" in agenda["6"]["show"]
 
-            if oculto in lista_oculto:
+        oculto = "Oculto para o Cliente" in agenda["6"]["show"]
 
-                agendas[agenda_id] = {
-                "data": data_agenda,
-                "dia_semana": dia_semana,
-                "concorrente" : pesquisanome,
-                "cliente(lista)" : cliente_info,
-                "status": status,
-                "oculto": oculto
-            }
-            else:
-                pass
+        if oculto in lista_oculto:
+
+            agendas[agenda_id] = {
+            "data": data_agenda,
+            "dia_semana": dia_semana,
+            "concorrente" : pesquisanome,
+            "cliente(lista)" : cliente_info,
+            "status": status,
+            "oculto": oculto
+        }
+
                     
-        return agendas
-    except Exception as e:
-        print("Erro ao obter agendas. Renove os cookies e tente novamente.")
-        print(f"Tipo de erro ocorrido: {type(e).__name__}")
-        return {}
-
-
+    return agendas
 
 
 agendas_anteriores = {}
