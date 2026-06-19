@@ -8,9 +8,9 @@ cookies = {
     '_ga_7D5FCHK8QD': 'GS2.1.s1781892173$o24$g1$t1781892310$j53$l0$h0',
     '9489d206329ssdb0bd437e1a7541': '5535741aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c6211aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c621',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781894879$o4$g1$t1781895709$j60$l0$h0',
-    'token_name': 'babc327720a17e2d3a1486ee972347909b71f3f34d5775419796577e8e302211cc8ca318babc327720a17e2d3a1486ee972347909b71f3f34d5775419796577e8e302211cc8ca318',
-    'token_value': '06f48d48b7f8fa956bf7756bb94c2be38749f254fd4cb235f4b2d71f71e2a25785eb46c206f48d48b7f8fa956bf7756bb94c2be38749f254fd4cb235f4b2d71f71e2a25785eb46c2',
-    '1989d206329b0bd437e1a7531': '32547671aff09413e5ba31fe514c594d56e4e05c6bcceef47ee5d42a87303dca38cc6776f4197671aff09413e5ba31fe514c594d56e4e05c6bcceef47ee5d42a87303dca38cc6776f419',
+    'token_name': '9f05696754a5fedbcf3eff17749be0bd53e4f3485b79d4be2c9d0dfe9ad019a172d4a1739f05696754a5fedbcf3eff17749be0bd53e4f3485b79d4be2c9d0dfe9ad019a172d4a173',
+    'token_value': '64454c8a02d2f495ccd8d98dfd23a27fa87c9695da282b3385123d63a509ed811935829a64454c8a02d2f495ccd8d98dfd23a27fa87c9695da282b3385123d63a509ed811935829a',
+    '1989d206329b0bd437e1a7531': '32544f8478f4b28253d2f58458d386cfbbb8227f5d17d794c86ef7ef2e9042e71b2b0609634b4f8478f4b28253d2f58458d386cfbbb8227f5d17d794c86ef7ef2e9042e71b2b0609634b',
 }
 
 
@@ -148,8 +148,8 @@ dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
 
 #filtros
 lista_de_status = [8]
-lista_de_clientes = [dic_clientes["Atakarejo"]]
-lista_de_listas = [7]
+lista_de_clientes = [dic_clientes["Master"]]
+lista_de_listas = [2]
 lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
 lista_oculto = [dic_oculto["Mostrar ocultos"],dic_oculto["Não mostrar ocultos"]]
 data_ini = "15/06/2026"
@@ -207,7 +207,7 @@ def obter_agendas():
     
     response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
     resposta = response.json()
-
+    print(resposta)
     agendas = {}
     for agenda in resposta["data"]:
 
@@ -232,7 +232,10 @@ def obter_agendas():
                 agenda["1"]["show"]
             ).group(1)
         except Exception:
-            cliente_info = "Fora do Cluster ou então um erro esquisito"
+            cliente_info = re.search(
+                r'badge badge-danger">(.*?)</span>',
+                agenda["1"]["show"]
+            ).group(1)
 
         # Nome da pesquisa
         pesquisanome = agenda["1"]["sort"]
