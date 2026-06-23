@@ -1,18 +1,18 @@
 from time import sleep
 from bs4 import BeautifulSoup
 import requests, phpserialize, json, re
+from notifier import Notificador
 
 cookies = {
     'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
     '_ga': 'GA1.1.2083834248.1781280005',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1781892173$o24$g1$t1781892310$j53$l0$h0',
-    '9489d206329ssdb0bd437e1a7541': '5535741aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c6211aa247498b99aaa611548af72cc2814e366c00232e121e4fca8b3472abe9780d51a2c621',
     '_ga_KQTSMYDQKY': 'GS2.1.s1781894879$o4$g1$t1781895709$j60$l0$h0',
-    'token_name': '9f05696754a5fedbcf3eff17749be0bd53e4f3485b79d4be2c9d0dfe9ad019a172d4a1739f05696754a5fedbcf3eff17749be0bd53e4f3485b79d4be2c9d0dfe9ad019a172d4a173',
-    'token_value': '64454c8a02d2f495ccd8d98dfd23a27fa87c9695da282b3385123d63a509ed811935829a64454c8a02d2f495ccd8d98dfd23a27fa87c9695da282b3385123d63a509ed811935829a',
-    '1989d206329b0bd437e1a7531': '32544f8478f4b28253d2f58458d386cfbbb8227f5d17d794c86ef7ef2e9042e71b2b0609634b4f8478f4b28253d2f58458d386cfbbb8227f5d17d794c86ef7ef2e9042e71b2b0609634b',
+    '9489d206329ssdb0bd437e1a7541': '530810467104d7d028ada129b419289602df95711dff2d190225a9c3f876bc4c6fa4e17a1cb3bf467104d7d028ada129b419289602df95711dff2d190225a9c3f876bc4c6fa4e17a1cb3bf',
+    '_ga_7D5FCHK8QD': 'GS2.1.s1782244019$o37$g1$t1782244039$j40$l0$h0',
+    'token_name': '1aa76f4c4c4b0aeeb54cb379181dcc423c6536dd0f202afddc6832d6f65269aabc3fe1211aa76f4c4c4b0aeeb54cb379181dcc423c6536dd0f202afddc6832d6f65269aabc3fe121',
+    'token_value': 'fffa6d99a2f3d302d3108d640682aa557914de21037bc91b081b0f21ccd69bb42593c203fffa6d99a2f3d302d3108d640682aa557914de21037bc91b081b0f21ccd69bb42593c203',
+    '1989d206329b0bd437e1a7531': '3254cb25714435f6de8b2f4d84cb5927e3bc576595c8118587f95bc27bbd929eee46a93932b6cb25714435f6de8b2f4d84cb5927e3bc576595c8118587f95bc27bbd929eee46a93932b6',
 }
-
 
 headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -147,12 +147,12 @@ dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
 
 
 #filtros
-lista_de_status = [8]
-lista_de_clientes = [dic_clientes["Master"]]
-lista_de_listas = [2]
+lista_de_status = [4]
+lista_de_clientes = [dic_clientes["Atakarejo"]]
+lista_de_listas = [7]
 lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
-lista_oculto = [dic_oculto["Mostrar ocultos"],dic_oculto["Não mostrar ocultos"]]
-data_ini = "15/06/2026"
+lista_oculto = [dic_oculto["Não mostrar ocultos"]]
+data_ini = "22/06/2026"
 data_fim = "23/06/2026"
 
 
@@ -207,7 +207,6 @@ def obter_agendas():
     
     response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
     resposta = response.json()
-    print(resposta)
     agendas = {}
     for agenda in resposta["data"]:
 
@@ -266,16 +265,69 @@ def obter_agendas():
 
 
 agendas_anteriores = {}
+agenda_vazia = {}
+
+
+
+agendas_anteriores = None
 
 while True:
 
     agendas_atuais = obter_agendas()
 
+    # Primeira execução
+    if agendas_anteriores is None:
+        agendas_anteriores = agendas_atuais.copy()
+        print(f"Inicializado com {len(agendas_atuais)} agendas.")
+        sleep(30)
+        continue
+
     novas = agendas_atuais.keys() - agendas_anteriores.keys()
+
+    if novas:
+
+        mensagem = "🚨 NOVAS AGENDAS DETECTADAS\n\n"
+
+        for agenda_id in novas:
+
+            agenda = agendas_atuais[agenda_id]
+
+            mensagem += (
+                f"Cliente: {agenda['cliente(lista)']}\n"
+                f"Pesquisa: {agenda['concorrente']}\n"
+                f"Data: {agenda['data']}\n"
+                f"Status: {agenda['status']}\n"
+                f"Oculto: {agenda['oculto']}\n"
+                f"ID: {agenda_id}\n"
+                f"{'-'*5}\n"
+            )
+
+        Notificador(mensagem)
+
+        print(f"{len(novas)} nova(s) agenda(s) enviada(s) ao Teams.")
+
+    agendas_anteriores = agendas_atuais.copy()
+
+    sleep(30)
+
+
+
+
+
+
+
+'''while True:
+    
+
+    agendas_atuais = obter_agendas()
+
+    novas = agendas_atuais.keys() - agendas_anteriores.keys()
+
     i = 1
     for agenda_id in novas:
         print("Nova agenda:")
         print(agendas_atuais[agenda_id])
+        #Notificador(agendas_atuais[agenda_id])
         if len(novas) == i:
             print("__________________________________")
         else:
@@ -283,7 +335,8 @@ while True:
 
     agendas_anteriores = agendas_atuais.copy()
 
-    sleep(30)
+    
+    sleep(30)'''
 
 
 
