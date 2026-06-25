@@ -3,15 +3,27 @@ from bs4 import BeautifulSoup
 import requests, phpserialize, json, re
 from notifier import Notificador
 
+
+with open("core/cookieszuk.json", "r", encoding="utf-8") as f:
+    lista_cookies = json.load(f)
+
+cookies_mapeados = {cookie["name"]: cookie["value"] for cookie in lista_cookies}
+
+cookie_ga = cookies_mapeados.get("_ga")
+cookie_sessid = cookies_mapeados.get("PHPSESSID")
+cookie_adm = cookies_mapeados.get("1989d206329b0bd437e1a7531")
+cookie_ga_7D5FCHK8QD = cookies_mapeados.get("_ga_7D5FCHK8QD")
+cookie_ga_KQTSMYDQKY = cookies_mapeados.get("_ga_KQTSMYDQKY")
+cookie_9489d206329ssdb0bd437e1a7541 = cookies_mapeados.get("9489d206329ssdb0bd437e1a7541")
+
+
 cookies = {
-    'PHPSESSID': 'daba0e1be39bb71a9a78c861036778ac',
-    '_ga': 'GA1.1.2083834248.1781280005',
-    '_ga_KQTSMYDQKY': 'GS2.1.s1781894879$o4$g1$t1781895709$j60$l0$h0',
-    '9489d206329ssdb0bd437e1a7541': '530810467104d7d028ada129b419289602df95711dff2d190225a9c3f876bc4c6fa4e17a1cb3bf467104d7d028ada129b419289602df95711dff2d190225a9c3f876bc4c6fa4e17a1cb3bf',
-    '_ga_7D5FCHK8QD': 'GS2.1.s1782244019$o37$g1$t1782244039$j40$l0$h0',
-    'token_name': '1aa76f4c4c4b0aeeb54cb379181dcc423c6536dd0f202afddc6832d6f65269aabc3fe1211aa76f4c4c4b0aeeb54cb379181dcc423c6536dd0f202afddc6832d6f65269aabc3fe121',
-    'token_value': 'fffa6d99a2f3d302d3108d640682aa557914de21037bc91b081b0f21ccd69bb42593c203fffa6d99a2f3d302d3108d640682aa557914de21037bc91b081b0f21ccd69bb42593c203',
-    '1989d206329b0bd437e1a7531': '3254cb25714435f6de8b2f4d84cb5927e3bc576595c8118587f95bc27bbd929eee46a93932b6cb25714435f6de8b2f4d84cb5927e3bc576595c8118587f95bc27bbd929eee46a93932b6',
+    'PHPSESSID': cookie_sessid,
+    '_ga': cookie_ga,
+    '_ga_KQTSMYDQKY': cookie_ga_KQTSMYDQKY,
+    '9489d206329ssdb0bd437e1a7541': cookie_9489d206329ssdb0bd437e1a7541,
+    '_ga_7D5FCHK8QD': cookie_ga_7D5FCHK8QD,
+    '1989d206329b0bd437e1a7531': cookie_adm,
 }
 
 headers = {
@@ -152,8 +164,8 @@ lista_de_clientes = [dic_clientes["Atakarejo"]]
 lista_de_listas = [7]
 lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
 lista_oculto = [dic_oculto["Não mostrar ocultos"]]
-data_ini = "22/06/2026"
-data_fim = "23/06/2026"
+data_ini = "24/06/2026"
+data_fim = "24/06/2026"
 
 
 
