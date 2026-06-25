@@ -100,19 +100,25 @@ for label in soup.select('label[for^="responsavel-"]'):
     responsaveis_dict[nome] = int(id_responsavel)
     auditores_dict[nome] = int(id_responsavel)
 
-filtro_responsavel_nome = ['Nicole Alessandra Taveira Parolin']
+
+filtro_responsavel_nome = ['Abner Alves Corrêa Gonçalves','Nicole Alessandra Taveira Parolin', 'André dos Santos Rodrigues Bezerra', 'Ayumi Tamashiro Gomes', 'Gabriela Rodrigues Nunes Prado','Julia Alves Corrêa','Luiz Felipe dos Santos Paiva','Pedro Henrique Levy Fermino Ferreira']
+filtro_auditor_nome = ['Isadora Ribeiro Vidal']
 ids_responsaveis = []
-if len(filtro_responsavel_nome) == 0:
-    ids_responsaveis = list(responsaveis_dict.values())
-else:
-    for i in filtro_responsavel_nome:
-        ids_responsaveis.append(str(responsaveis_dict[i]))
+ids_auditores = []
+
+def avaliador_filtro(l):
+    filtro_gen = []
+    if len(l) == 0:
+        filtro_gen = list(responsaveis_dict.values())
+    else:
+        for i in l:
+            filtro_gen.append(str(responsaveis_dict[i]))
+    return serializar_php_inteiros(filtro_gen)
     
 
-responsaveis_php = serializar_php_inteiros(ids_responsaveis)
-
-auditores_php = serializar_php_inteiros(list(auditores_dict.values()))
-
+responsaveis_php = avaliador_filtro(filtro_responsavel_nome)
+#auditores_php = serializar_php_inteiros(list(responsaveis_dict.values()))
+auditores_php = avaliador_filtro(filtro_auditor_nome)
 #relacao id - clientes
 
 r = requests.get(
