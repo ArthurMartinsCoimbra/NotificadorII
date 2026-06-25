@@ -87,6 +87,9 @@ soup = BeautifulSoup(html, "html.parser")
 
 responsaveis_dict = {}
 auditores_dict = {}
+status_dict = {}
+lista_dict = {}
+
 
 for label in soup.select('label[for^="responsavel-"]'):
 
@@ -101,25 +104,27 @@ for label in soup.select('label[for^="responsavel-"]'):
     auditores_dict[nome] = int(id_responsavel)
 
 
-filtro_responsavel_nome = ['Abner Alves Corrêa Gonçalves','Nicole Alessandra Taveira Parolin', 'André dos Santos Rodrigues Bezerra', 'Ayumi Tamashiro Gomes', 'Gabriela Rodrigues Nunes Prado','Julia Alves Corrêa','Luiz Felipe dos Santos Paiva','Pedro Henrique Levy Fermino Ferreira']
-filtro_auditor_nome = ['Isadora Ribeiro Vidal']
-ids_responsaveis = []
-ids_auditores = []
 
-def avaliador_filtro(l):
-    filtro_gen = []
-    if len(l) == 0:
-        filtro_gen = list(responsaveis_dict.values())
-    else:
-        for i in l:
-            filtro_gen.append(str(responsaveis_dict[i]))
-    return serializar_php_inteiros(filtro_gen)
-    
+for label in soup.select('label[for^="status-"]'):
 
-responsaveis_php = avaliador_filtro(filtro_responsavel_nome)
-#auditores_php = serializar_php_inteiros(list(responsaveis_dict.values()))
-auditores_php = avaliador_filtro(filtro_auditor_nome)
-#relacao id - clientes
+    nome = label.get_text(strip=True)
+
+    id_status = (
+        label["for"]
+        .replace("status-", "")
+    )
+    status_dict[nome] = id_status
+
+for label in soup.select('label[for^="lista_tipo-"]'):
+
+    nome = label.get_text(strip=True)
+
+    id_lista = (
+        label["for"]
+        .replace("lista_tipo-", "")
+    )
+    lista_dict[nome] = id_lista
+
 
 r = requests.get(
     "https://adm.zukk.in/get-clientes",
@@ -130,10 +135,58 @@ r = requests.get(
 clientes_json = r.json()
 
 #relacao cliente - id
+dic_clientes = {
+    item["text"]: int(item["id"])
+    for item in clientes_json["results"]
+}
+
+dic_agenda_tipo = {"ZGO":1, "ZRobot":2}
+
+
+#Filtros
+#'Abner Alves Corrêa Gonçalves','Nicole Alessandra Taveira Parolin', 'André dos Santos Rodrigues Bezerra', 'Ayumi Tamashiro Gomes', 'Gabriela Rodrigues Nunes Prado','Julia Alves Corrêa','Luiz Felipe dos Santos Paiva','Pedro Henrique Levy Fermino Ferreira'
+
+data_ini = "25/06/2026"
+data_fim = "25/06/2026"
+filtro_responsavel_nome = []
+filtro_auditor_nome = []
+filtro_cliente_nome = ['Zaffari']
+filtro_status_nome = ['Auditado']
+filtro_tipo_nome = [] #ZGO e ZRobot
+filtro_lista_nome = ["Semanal", "ZRobot"]
+
+def avaliador_filtro(l, tipo):
+    filtro_gen = []
+    dic_tipo_avaliador = {
+        'responsavel':responsaveis_dict,
+        'auditor':responsaveis_dict,                    
+        'cliente': dic_clientes,                  
+        'tipo'  : dic_agenda_tipo,
+        'status': status_dict,                
+        'lista' :  lista_dict
+        }
+
+    if len(l) == 0:
+        filtro_gen = list(dic_tipo_avaliador[tipo].values())
+    else:
+        for i in l:
+            filtro_gen.append(str(dic_tipo_avaliador[tipo][i]))
+    return serializar_php_inteiros(filtro_gen)
+    
+
+responsaveis_php = avaliador_filtro(filtro_responsavel_nome,'responsavel')
+#auditores_php = serializar_php_inteiros(list(responsaveis_dict.values()))
+auditores_php = avaliador_filtro(filtro_auditor_nome, 'auditor')
+clientes_php = avaliador_filtro(filtro_cliente_nome, 'cliente')
+agenda_tipo_php = avaliador_filtro(filtro_tipo_nome, 'tipo')
+status_php = avaliador_filtro(filtro_status_nome, 'status')
+listas_php = avaliador_filtro(filtro_lista_nome, 'lista')
 
 
 
 
+
+#relacao id - clientes
 
 
 '''clientes_ids = [
@@ -156,30 +209,19 @@ def serializar_lista_php(lista):
 
 
 
-dic_clientes = {
-    item["text"]: int(item["id"])
-    for item in clientes_json["results"]
-}
-dic_agenda_tipo = {"ZGO":1, "ZRobot":2}
+
+
 
 dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
 
 
-#filtros
-lista_de_status = [5]
-lista_de_clientes = [dic_clientes["Zaffari"]]
-lista_de_listas = [2]
-lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
+
+#pós filtros
 lista_oculto = [dic_oculto["Não mostrar ocultos"]]
-data_ini = "24/06/2026"
-data_fim = "25/06/2026"
 
 
 
-clientes_php = serializar_lista_php(lista_de_clientes)
-status_php = serializar_lista_php(lista_de_status)
-listas_php = serializar_lista_php(lista_de_listas)
-agenda_tipo_php = serializar_lista_php(lista_de_agenda_tipo)
+
 
 
 payload['DT_POST']=payload['DT_POST'].replace("DATA_INI", data_ini)
