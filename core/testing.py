@@ -85,32 +85,33 @@ html = requests.get(
 soup = BeautifulSoup(html, "html.parser")
 
 
-responsaveis_lista = []
-
-for inp in soup.select('input[id^="responsavel-"]'):
-    responsaveis_lista.append(inp["value"])
-
-#print(responsaveis_lista)
-
-
-
 responsaveis_dict = {}
+auditores_dict = {}
 
-for inp in soup.select('input[id^="responsavel-"]'):
+for label in soup.select('label[for^="responsavel-"]'):
 
-    id_resp = inp["value"]
+    nome = label.get_text(strip=True)
 
-    label = soup.find("label", {"for": inp["id"]})
+    id_responsavel = (
+        label["for"]
+        .replace("responsavel-", "")
+    )
 
-    if label:
-        responsaveis_dict[label.text.strip()] = id_resp
+    responsaveis_dict[nome] = int(id_responsavel)
+    auditores_dict[nome] = int(id_responsavel)
 
-#print(responsaveis_dict)
-
-
-ids_responsaveis = list(responsaveis_dict.values())
+filtro_responsavel_nome = ['Nicole Alessandra Taveira Parolin']
+ids_responsaveis = []
+if len(filtro_responsavel_nome) == 0:
+    ids_responsaveis = list(responsaveis_dict.values())
+else:
+    for i in filtro_responsavel_nome:
+        ids_responsaveis.append(str(responsaveis_dict[i]))
+    
 
 responsaveis_php = serializar_php_inteiros(ids_responsaveis)
+
+auditores_php = serializar_php_inteiros(list(auditores_dict.values()))
 
 #relacao id - clientes
 
@@ -159,13 +160,13 @@ dic_oculto = {"Não mostrar ocultos":0, "Mostrar ocultos":1}
 
 
 #filtros
-lista_de_status = [4]
-lista_de_clientes = [dic_clientes["Atakarejo"]]
-lista_de_listas = [7]
+lista_de_status = [5]
+lista_de_clientes = [dic_clientes["Zaffari"]]
+lista_de_listas = [2]
 lista_de_agenda_tipo = [dic_agenda_tipo["ZGO"]]
 lista_oculto = [dic_oculto["Não mostrar ocultos"]]
 data_ini = "24/06/2026"
-data_fim = "24/06/2026"
+data_fim = "25/06/2026"
 
 
 
@@ -182,7 +183,7 @@ payload['DT_POST']=payload['DT_POST'].replace("AGENDA_TIPO", agenda_tipo_php)
 payload['DT_POST']=payload['DT_POST'].replace("STATUS", status_php)
 payload['DT_POST']=payload['DT_POST'].replace("LISTA", listas_php)
 payload['DT_POST']=payload['DT_POST'].replace("RESPONSAVEIS_PHP", responsaveis_php)
-payload['DT_POST']=payload['DT_POST'].replace("AUDITORES_PHP", responsaveis_php)
+payload['DT_POST']=payload['DT_POST'].replace("AUDITORES_PHP", auditores_php)
 
 #response = requests.post('https://adm.zukk.in/dt-agenda-zgo', cookies=cookies, headers=headers, data=payload)
 #resposta = response.json()
